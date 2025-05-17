@@ -1,16 +1,19 @@
-export const generateOrderCode = (lastCode: string): string => {
-    const lastNumber = parseInt(lastCode.split("-")[1] || "0");
-    return `ORD-${String(lastNumber + 1).padStart(4, "0")}`;
-  };
-
-export const generateOrderCodeNew = (customerId: number): string => {
+export const generateOrderCodeNew = (customerId: number, lastCode?: string): string => {
   const now = new Date();
   const datePart = `${String(now.getDate()).padStart(2, "0")}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getFullYear()).slice(2)}`;
 
-  const timestamp = now.getTime().toString().slice(-5); // ambil 5 digit terakhir timestamp
+  let running = "00001"; // default awal
 
-  return `ORDER-${customerId}-${datePart}-${timestamp}`;
+  if (lastCode) {
+    const parts = lastCode.split("-");
+    const lastDatePart = parts[2];
+    const lastNumber = parts[3];
+
+    if (lastDatePart === datePart) {
+      const incremented = parseInt(lastNumber) + 1;
+      running = String(incremented).padStart(5, "0");
+    }
+  }
+
+  return `ORDER-${customerId}-${datePart}-${running}`;
 };
-
-
-  

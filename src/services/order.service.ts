@@ -19,19 +19,33 @@ export const OrderService = {
     try {
       const { address, payment_type, items } = payload;
 
-      // Cari customer berdasarkan alamat
-      const [cust]: any = await conn.query(
-        `SELECT id, email, customer_name FROM users WHERE address = ?`,
-        [address]
-      );
-      if (cust.length === 0) throw { status: 404, message: "Customer tidak ditemukan." };
+     // Dapatkan customer
+    const [cust]: any = await conn.query(
+      `SELECT id, email, customer_name FROM users WHERE address = ?`,
+      [address]
+    );
+    if (cust.length === 0) throw { status: 404, message: "Customer tidak ditemukan." };
 
-      const customerId = cust[0].id;
-      const customerEmail = cust[0].email;
-      const customer_name = cust[0].customer_name;
+    const customerId = cust[0].id;
+    const customerEmail = cust[0].email;
+    const customer_name = cust[0].customer_name;
 
-      // Buat kode order baru
-      const newCode = generateOrderCodeNew(customerId);
+    // Hitung tanggal sekarang
+    const now = new Date();
+    const datePart = `${String(now.getDate()).padStart(2, "0")}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getFullYear()).slice(2)}`;
+
+    // Ambil last code berdasarkan tanggal & customer
+    const [orders]: any = await conn.query(
+      `SELECT code FROM orders 
+      WHERE customer_id = ? AND code LIKE ? 
+      ORDER BY id DESC LIMIT 1`,
+      [customerId, `%${datePart}%`]
+    );
+    const lastCode = orders[0]?.code || null;
+
+    // Generate new code
+    const newCode = generateOrderCodeNew(customerId, lastCode);
+
 
       let total = 0;
 
@@ -74,84 +88,4 @@ export const OrderService = {
     }
   }
 };
-
-
-
-  // async createLog(customerName: string, itemName: string, quantity: number) {
-  //   const conn = await db.getConnection();
-  //   await conn.beginTransaction();
-
-  //   try {
-  //     const timestamp = new Date().toISOString();
-
-  //     const [cust]: any = await conn.query(
-  //       `SELECT id, email, address FROM user WHERE customer_name = ?`,
-  //       [customerName]
-  //     );
-  //     if (cust.length === 0) throw { status: 404, message: "Customer tidak ditemukan." };
-
-  //     const [item]: any = await conn.query(
-  //       `SELECT id, price FROM items WHERE item_name = ?`,
-  //       [itemName]
-  //     );
-  //     if (item.length === 0) throw { status: 404, message: "Item tidak ditemukan." };
-
-  //     const customerId = cust[0].id;
-  //     const customerEmail = cust[0].email;
-  //     const address = cust[0].address;
-
-  //     const itemId = item[0].id;
-  //     const itemPrice = item[0].price;
-
-  //     const [orders]: any = await conn.query(
-  //       `SELECT id, code FROM orders WHERE customer_id = ? AND item_id = ? AND qty = ? ORDER BY id DESC LIMIT 1`,
-  //       [customerId, itemId, quantity]
-  //     );
-
-  //     if (orders.length === 0) throw { status: 404, message: "Order tidak ditemukan." };
-
-  //     const orderId = orders[0].id;
-  //     const orderCode = orders[0].code;
-
-  //     await conn.query(`INSERT INTO logs (order_id) VALUES (?)`, [orderId]);
-
-  //     // Simpan order ke file JSON
-  //     const orderData = {
-  //       no_order: orderCode,
-  //       id_customer: customerId,
-  //       name: customerName,
-  //       email: customerEmail,
-  //       address,
-  //       payment_type: "Transfer",
-  //       items: [
-  //         {
-  //           id_product: itemId,
-  //           name: itemName,
-  //           price: itemPrice,
-  //           qty: quantity
-  //         }
-  //       ],
-  //       total: itemPrice * quantity,
-  //       status: "Order Diterima"
-  //     };
-
-  //     await saveOrderToFile(orderData, orderCode);
-
-  //     await conn.commit();
-
-  //     return {
-  //       message: "Logs berhasil dibuat dan file order disimpan",
-  //       order_id: orderId,
-  //       customer_name: customerName,
-  //       item_name: itemName,
-  //       quantity,
-  //       time: timestamp,
-  //     };
-  //   } catch (error) {
-  //     await conn.rollback();
-  //     throw error;
-  //   } finally {
-  //     conn.release();
-  //   }
-  // }
 
