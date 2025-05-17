@@ -1,8 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 
-const DELIVERED_DIR = path.join(__dirname, "../../database/delivered-order");
-const REKAP_DIR = path.join(__dirname, "../../database/rekap-order");
+const DELIVERED_DIR = path.join(__dirname, "../database/delivered-order");
+const REKAP_DIR = path.join(__dirname, "../database/rekap-order");
 const REKAP_FILENAME = "REKAP-ORDER-011224.json";
 const LOG_FILENAME = "rekap-log.json";
 

@@ -5,8 +5,6 @@ import orderRoutes from "./routes/order.route";
 import { runOrderWorker } from "./workers/orderWorker";
 import { runRekapWorker } from "./workers/rekapWorker";
 
-
-
 dotenv.config();
 
 const app = express();
