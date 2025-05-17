@@ -1,8 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 
-const CUSTOMER_ORDER_DIR = path.join(__dirname, "../../database/customer-order");
-const DELIVERED_ORDER_DIR = path.join(__dirname, "../../database/delivered-order");
+const CUSTOMER_ORDER_DIR = path.join(__dirname, "../database/customer-order");
+const DELIVERED_ORDER_DIR = path.join(__dirname, "../database/delivered-order");
 
 async function processFile(fileName: string, attempt = 1): Promise<void> {
   const sourcePath = path.join(CUSTOMER_ORDER_DIR, fileName);
