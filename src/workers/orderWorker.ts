@@ -12,10 +12,8 @@ async function processFile(fileName: string, attempt = 1): Promise<void> {
     const fileData = await fs.readFile(sourcePath, "utf8");
     const order = JSON.parse(fileData);
 
-    // Update status
     order.status = "Dikirim ke customer";
 
-    // Cegah duplikat
     const isExists = await fs
       .access(destPath)
       .then(() => true)
@@ -28,9 +26,6 @@ async function processFile(fileName: string, attempt = 1): Promise<void> {
 
     // Simpan ke folder delivered
     await fs.writeFile(destPath, JSON.stringify(order, null, 2), "utf8");
-
-    // Hapus file lama dari folder customer-order
-    await fs.unlink(sourcePath);
 
     console.log(`[OK] File ${fileName} diproses & dikirim`);
   } catch (error) {
